@@ -1,49 +1,37 @@
-# This workflow uses actions that are not certified by GitHub.
-# They are provided by a third-party and are governed by
-# separate terms of service, privacy policy, and support
-# documentation.
-
-name: Dart
+name: dev
 
 on:
+  workflow_dispatch:
+
   push:
-    branches: [ "dev" ]
-  pull_request:
-    branches: [ "dev" ]
+    branches:
+      - "dev"
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v2
 
-      # Note: This workflow uses the latest stable version of the Dart SDK.
-      # You can specify other versions if desired, see documentation here:
-      # https://github.com/dart-lang/setup-dart/blob/main/README.md
-      # - uses: dart-lang/setup-dart@v1
-      - uses: dart-lang/setup-dart@9a04e6d73cca37bd455e0608d7e5092f881fd603
+      - name: Setup Path
+        run: |
+          echo "/usr/lib/dart/bin" >> $GITHUB_PATH
+          echo "$HOME/.pub-cache/bin" >> $GITHUB_PATH
 
-      - name: Run Flutter Linter
-        run: flutter analyze
-
-      - name: Generate and Analyze Test Coverage
-        run:
-           - flutter test --coverage
-           - genhtml coverage/lcov.info -o coverage/html
-
-      - name: Upload Coverage Report
-        uses: actions/upload-artifact@v3
+      - name: Install Flutter
+        uses: subosito/flutter-action@v2
         with:
-             name: coverage
-             paths: coverage/html
+             flutter-version: '3.7.6'
 
-      - name: Analyze Dart Code Metrics
-        run: dart run dart_code_metrics:analyze
+      - name: Install project dependencies
+        run:  flutter pub get
 
-      - name: Upload Dart Code Metrics Report
-        uses: actions/upload-artifact@v3
-        with:
-             name: dart_code_metrics
-             paths: coverage/metrics.html
+      - name: Run code generation
+        run:  flutter pub run build_runner build --delete-conflicting-outputs
 
+      - name: Run static analysis
+        run:  flutter analyze .
+
+      - name: Run tests
+        run:  flutter test --no-pub --test-randomize-ordering-seed random
