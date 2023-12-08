@@ -1,7 +1,6 @@
 import 'package:dio/dio.dart';
 
 import '../../helpers/preferences.dart';
-import '../../models/access_token.dart';
 
 class ApiInterceptor extends Interceptor {
   ApiInterceptor() : super();
@@ -12,11 +11,11 @@ class ApiInterceptor extends Interceptor {
     RequestInterceptorHandler handler,
   ) async {
     if (options.extra.containsKey('requiresAuthToken')) {
-      final AccessToken? token = await Preference.getUserAccessToken();
+      final Map<String,dynamic>? token = await Preference.getUserAccessToken();
 
       if (options.extra['requiresAuthToken'] == true && token != null) {
         options.headers.addAll(
-          <String, Object?>{'Authorization': 'Bearer ${token.accessToken}'},
+          <String, Object?>{'Authorization': 'Bearer ${token["accessToken"]}'},
         );
       }
 

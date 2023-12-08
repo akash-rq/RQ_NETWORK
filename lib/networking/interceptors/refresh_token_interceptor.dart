@@ -5,7 +5,6 @@ import 'package:flutter/foundation.dart';
 
 import '../../helpers/preferences.dart';
 import '../../helpers/typedefs.dart';
-import '../../models/access_token.dart';
 import '../api_endpoint.dart';
 
 class RefreshTokenInterceptor extends QueuedInterceptor {
@@ -26,15 +25,16 @@ class RefreshTokenInterceptor extends QueuedInterceptor {
         if (err.response!.data != null) {
           final tokenDio = Dio()..options = _dio.options;
 
-          final AccessToken? token = await Preference.getUserAccessToken();
-          final AccessToken? newAccessToken;
+          final Map<String, dynamic>? token =
+              await Preference.getUserAccessToken();
+          final Map<String, dynamic>? newAccessToken;
 
           if (err.requestOptions.headers.containsKey('Authorization') == true) {
             if (err.response?.statusCode == 401) {
               final Map<String, dynamic> refreshTokenBody = <String, dynamic>{
                 'customer': <String, String>{
                   'grant_type': 'refresh_token',
-                  'refresh_token': token?.refreshToken ?? '',
+                  'refresh_token': (token?['refreshToken'] as String?) ?? '',
                 }
               };
 
@@ -46,7 +46,7 @@ class RefreshTokenInterceptor extends QueuedInterceptor {
               );
 
               if (newToken != null && newToken.isNotEmpty) {
-                newAccessToken = json.decode(newToken) as AccessToken;
+                newAccessToken = json.decode(newToken)  as JSON;
 
                 final response = await _dio.request<JSON>(
                   err.requestOptions.path,
@@ -54,7 +54,7 @@ class RefreshTokenInterceptor extends QueuedInterceptor {
                   cancelToken: err.requestOptions.cancelToken,
                   options: Options(
                     headers: <String, Object?>{
-                      'Authorization': 'Bearer ${newAccessToken.accessToken}'
+                      'Authorization': 'Bearer ${newAccessToken["accessToken"]}'
                     },
                   ),
                 );
