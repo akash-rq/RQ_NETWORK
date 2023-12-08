@@ -1,5 +1,5 @@
 name: rq_network_flutter
-description: A new Flutter package project.
+description: This package, **rq_network_flutter**, provides a clean and concise API for making network requests and handling responses in your Flutter projects. With minimal code, you can easily send requests, parse responses, and handle errors. 
 version: 0.0.1
 homepage:
 repository: https://github.com/akash-rq/RQ_NETWORK
