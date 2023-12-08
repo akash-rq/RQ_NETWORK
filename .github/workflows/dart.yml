@@ -33,5 +33,6 @@ jobs:
       - name: Run static analysis
         run:  flutter analyze .
 
-      - name: Run tests
-        run:  flutter test --no-pub --test-randomize-ordering-seed random
+      # - name: Run tests
+      #   run:  flutter test --no-pub --test-randomize-ordering-seed random
+      # need to add after writing test cases
