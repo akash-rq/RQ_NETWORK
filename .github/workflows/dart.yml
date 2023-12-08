@@ -2,13 +2,11 @@ name: package_test
 
 on:
   workflow_dispatch:
-
   push:
     branches:
       - dev
 
 jobs:
-  # Cache and Install Dependencies
   cache_and_install:
     runs-on: ubuntu-latest
     outputs:
@@ -40,18 +38,16 @@ jobs:
         uses: actions/setup-java@v3
         with:
           java-version: "17"
-        - run: echo "Cache hit: ${{ steps.cache.outputs.cache-hit }}"
+      - run: echo "Cache hit: ${{ steps.cache.outputs.cache-hit }}"
 
-  # Test Package
   test:
-     runs-on: ubuntu-latest
+    runs-on: ubuntu-latest
     needs: cache_and_install
     steps:
       - uses: actions/checkout@v2
       - run: flutter pub get
       - run: flutter analyze .
 
-  # Bump Version
   bump_version:
     runs-on: ubuntu-latest
     needs: test
@@ -76,7 +72,6 @@ jobs:
       - name: Create tag (optional)
         run: git tag "v$new_version"
 
-  # Publish Package
   publish_package:
     runs-on: ubuntu-latest
     needs: bump_version
@@ -87,14 +82,17 @@ jobs:
           node-version: "16"
       - run: flutter pub get
       - run: dart run build_runner build
+      # Fetch npm version here using appropriate commands
+      - name: Set npm_version
+        id: set_npm_version
+        run: echo "::set-output name=npm_version::1.0.0" # Replace with actual npm version retrieval command
       - name: Update file name
         run: |
-          mv build/outputs/package/my_package-0.0.1.tar.gz "build/outputs/package/rq_network-${npm_version}.tar.gz"
-          # Replace "npm_version" with the actual version obtained from npm
+          mv build/outputs/package/my_package-0.0.1.tar.gz "build/outputs/package/rq_network-${{ steps.set_npm_version.outputs.npm_version }}.tar.gz"
       - uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUBTOKEN }}
-          file: "build/outputs/package/rq_network-${npm_version}.tar.gz"
-          tag: v[version]
+          file: "build/outputs/package/rq_network-${{ steps.set_npm_version.outputs.npm_version }}.tar.gz"
+          tag: v${{ needs.bump_version.outputs.new_version }}
           prerelease: false
           overwrite: true
