@@ -1,27 +1,37 @@
-name: package_test
+name: Package Test and Release
 
 on:
   workflow_dispatch:
-
   push:
     branches:
       - dev
 
 jobs:
-  # Test Package
-  test:
+  test_and_release:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: subosito/flutter-action@v2
+      - name: Checkout Code
+        uses: actions/checkout@v2
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
         with:
           flutter-version: "3.13.2"
-      - run: flutter pub get
-      - run: flutter analyze .
-      - uses: svenstaro/upload-release-action@v2
+
+      - name: Flutter Pub Get
+        run: flutter pub get
+
+      - name: Flutter Analyze
+        run: flutter analyze .
+
+      - name: Build Flutter Package
+        run: flutter build tar
+
+      - name: Upload Release
+        uses: svenstaro/upload-release-action@v2
         with:
-          repo_token: ${{secrets.GITHUB_TOKEN }}
-          file: build/outputs/package/rq_network-0.0.1.tar.gz
+          repo_token: ${{secrets.GITHUBTOKEN }}
+          file: build/outputs/package/rq_network-0.0.1.tar.gz  # Update with your package file path
           tag: v[version]
           prerelease: false
           overwrite: true
