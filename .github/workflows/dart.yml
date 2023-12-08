@@ -93,4 +93,6 @@ jobs:
         with:
           repo_token: ${{ secrets.GITHUBTOKEN }}
           file: "build/outputs/package/rq_network-${{ steps.set_npm_version.outputs.npm_version }}.tar.gz"
-          tag: v${{ needs.bump
+          tag: v${{ needs.bump_version.outputs.new_version }}
+          prerelease: false
+          overwrite: true
