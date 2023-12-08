@@ -9,8 +9,7 @@ on:
 jobs:
   cache_and_install:
     runs-on: ubuntu-latest
-    env:
-      PATH: ${{ runner.toolsDirectory }}/flutter/bin:$PATH
+   
     steps:
       - uses: actions/checkout@v3
 
