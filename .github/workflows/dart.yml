@@ -5,32 +5,48 @@ on:
 
   push:
     branches:
-      - "dev"
+      - dev
 
 jobs:
+  # Test Package
   test:
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v2
-
-      - name: Setup Path
-        run: |
-          echo "/usr/lib/dart/bin" >> $GITHUB_PATH
-          echo "$HOME/.pub-cache/bin" >> $GITHUB_PATH
-
-      - name: Install Flutter
-        uses: subosito/flutter-action@v2
+      - uses: subosito/flutter-action@v2
         with:
-             flutter-version: '3.13.2'
+          flutter-version: "3.13.2"
+      - run: flutter pub get
+      - run: flutter analyze .
 
-      - name: Install project dependencies
-        run:  flutter pub get
+  # Bump Version
+  bump_version:
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: "16"
+      - run: flutter pub get
+      - run: npm version patch # Increment patch version
+      - run: git add pubspec.yaml && git commit -m "Bump version to [version]"
 
-      - name: Run static analysis
-        run:  flutter analyze .
-
-
-      # - name: Run tests
-      #   run:  flutter test --no-pub --test-randomize-ordering-seed random
-      # need to add after writing test cases
+  # Publish Package
+  publish_package:
+    runs-on: ubuntu-latest
+    needs: bump_version
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: "16"
+      - run: flutter pub get
+      - run: dart run build_runner build
+      - uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{secrets.GITHUBTOKEN }}
+          file: build/outputs/package/my_package-0.0.1.tar.gz
+          tag: v[version]
+          prerelease: false
+          overwrite: true
