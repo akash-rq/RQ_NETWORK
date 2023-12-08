@@ -16,9 +16,14 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: "3.13.2"
+      - uses: actions/cache@v3
+        with:
+          path: ~/.pub-cache
+          key: ${{ runner.os }}-pub-cache-${{ hashFiles('pubspec.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pub-cache-
       - run: flutter pub get
       - run: flutter analyze .
-
 
   # Bump Version
   bump_version:
@@ -58,7 +63,7 @@ jobs:
       - run: dart run build_runner build
       - uses: svenstaro/upload-release-action@v2
         with:
-          repo_token: ${{ secrets.GITHUBTOKEN }}
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: build/outputs/package/my_package-0.0.1.tar.gz
           tag: v[version]
           prerelease: false
