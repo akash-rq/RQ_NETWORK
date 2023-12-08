@@ -1,4 +1,4 @@
-name: dev
+name: package_test
 
 on:
   workflow_dispatch:
@@ -29,6 +29,9 @@ jobs:
 
       - name: Run static analysis
         run:  flutter analyze .
+
+      - name: Publish the Package
+        run:  flutter pub publish
 
       # - name: Run tests
       #   run:  flutter test --no-pub --test-randomize-ordering-seed random
