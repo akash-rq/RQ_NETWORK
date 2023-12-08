@@ -9,6 +9,24 @@ jobs:
   publish:
     permissions:
       id-token: write # Required for authentication using OIDC
-    uses: dart-lang/setup-dart/.github/workflows/publish.yml@v1
-    with:
-       working-directory: .
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-dart@v1
+        with:
+          sdk: ^2.18.0
+      - uses: dart-lang/setup-flutter@v1
+      - run: flutter pub get
+      - run: flutter pub publish --dry-run
+      # Check if the published version is different from the local version.
+      - name: Check published version
+        run: |
+          local_version=$(flutter pubspec show version)
+          published_version=$(curl https://pub.dev/packages/YOUR_PACKAGE_NAME/versions | jq '.[0].version')
+          if [[ "$local_version" != "$published_version" ]]; then
+            echo "New version available! Publishing..."
+          else
+            echo "No new version available. Skipping publishing."
+            exit 0
+          fi
+      - run: flutter pub publish
