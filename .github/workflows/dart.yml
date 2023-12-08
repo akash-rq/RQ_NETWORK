@@ -1,0 +1,49 @@
+# This workflow uses actions that are not certified by GitHub.
+# They are provided by a third-party and are governed by
+# separate terms of service, privacy policy, and support
+# documentation.
+
+name: Dart
+
+on:
+  push:
+    branches: [ "dev" ]
+  pull_request:
+    branches: [ "dev" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      # Note: This workflow uses the latest stable version of the Dart SDK.
+      # You can specify other versions if desired, see documentation here:
+      # https://github.com/dart-lang/setup-dart/blob/main/README.md
+      # - uses: dart-lang/setup-dart@v1
+      - uses: dart-lang/setup-dart@9a04e6d73cca37bd455e0608d7e5092f881fd603
+
+      - name: Run Flutter Linter
+        run: flutter analyze
+
+      - name: Generate and Analyze Test Coverage
+        run:
+           - flutter test --coverage
+           - genhtml coverage/lcov.info -o coverage/html
+
+      - name: Upload Coverage Report
+        uses: actions/upload-artifact@v3
+        with:
+             name: coverage
+             paths: coverage/html
+
+      - name: Analyze Dart Code Metrics
+        run: dart run dart_code_metrics:analyze
+
+      - name: Upload Dart Code Metrics Report
+        uses: actions/upload-artifact@v3
+        with:
+             name: dart_code_metrics
+             paths: coverage/metrics.html
+
