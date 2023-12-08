@@ -1,4 +1,4 @@
-name: package_test
+name: Version, Analyze, and Publish
 
 on:
   workflow_dispatch:
@@ -7,45 +7,41 @@ on:
       - dev
 
 jobs:
-  cache_and_install:
+  bump_version_analyze_publish:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout Code
+        uses: actions/checkout@v2
 
-      - name: Cache Flutter
-        id: cache_flutter
+      - name: Cache Flutter Dependencies
         uses: actions/cache@v2
         with:
           path: ~/.pub-cache
-          key: ${{ runner.os }}-flutter-cache-${{ hashFiles('.flutter-version') }}
+          key: ${{ runner.os }}-flutter-${{ hashFiles('**/pubspec.yaml') }}
 
-      - name: Setup Flutter
-        run: |
-          mkdir -p $HOME/bin
-          curl -fsSL https://raw.githubusercontent.com/USERNAME/REPOSITORY/BRANCH/setup.sh -o $HOME/bin/setup_flutter.sh
-          chmod +x $HOME/bin/setup_flutter.sh
-          $HOME/bin/setup_flutter.sh -n latest
-          echo "::add-path::$HOME/.flutter-sdk/bin" # Add Flutter to PATH
-
-      - name: Cache Java
-        id: cache_java
-        uses: actions/cache@v2
-        with:
-          path: ~/Library/Android/sdk
-          key: ${{ runner.os }}-java-cache-${{ hashFiles('build.gradle') }}
-
-      - name: Install Java (if not cached)
-        if: steps.cache_java.outputs.cache-hit != 'true'
-        run: |
-          # Install Java if cache was not found
-          # Use your Java installation commands here
-
-  test:
-    runs-on: ubuntu-latest
-    needs: cache_and_install
-    steps:
-      - uses: actions/checkout@v2
       - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "3.12.2" # Set the Flutter version you want to use
+
+      - name: Get Previous Tag
+        id: get_previous_tag
+        run: echo ::set-output name=PREV_TAG::$(git describe --abbrev=0 --tags)
+
+      - name: Get Current Version
+        id: get_current_version
+        run: echo ::set-output name=CURR_VERSION::$(flutter --version | grep -o "Flutter [0-9.]*" | cut -d " " -f 2)
+
+      - name: Increment Version
+        id: increment_version
+        run: echo ::set-output name=NEW_VERSION::$(bash -c "echo \${${{ steps.get_current_version.outputs.CURR_VERSION }}%.*}.$((${{ steps.get_current_version.outputs.CURR_VERSION }} | awk -F '.' '{print $NF}') + 1)")
+
+      - name: Update pubspec.yaml
+        run: sed -i "s/version: ${GITHUB_REF#refs/tags\//}/version: ${{ steps.increment_version.outputs.NEW_VERSION }}/" pubspec.yaml
+
+      - name: Analyze Package
+        run: flutter analyze
+
+      - name: Publish Package
         run: |
-          flutter pub get
-          flutter analyze .
+          flutter pub publish
