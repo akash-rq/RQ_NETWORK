@@ -9,36 +9,30 @@ on:
 jobs:
   cache_and_install:
     runs-on: ubuntu-latest
-    outputs:
-      cache_hit: ${{ steps.cache.outputs.cache-hit }}
     steps:
       - uses: actions/checkout@v3
       - name: Cache Flutter
-        id: cache
-        uses: actions/cache@v3
+        id: cache_flutter
+        uses: actions/cache@v2
         with:
           path: ~/.pub-cache
           key: ${{ runner.os }}-flutter-cache-${{ hashFiles('.flutter-version') }}
-          restore-keys: |
-            ${{ runner.os }}-flutter-cache-
       - name: Install Flutter
-        if: steps.cache.outputs.cache-hit != 'true'
-        uses: subosito/flutter-action@v2
-        with:
-          flutter-version: "3.13.2"
+        if: steps.cache_flutter.outputs.cache-hit != 'true'
+        run: |
+          # Install Flutter if cache was not found
+          # Use your Flutter installation commands here
       - name: Cache Java
-        uses: actions/cache@v3
+        id: cache_java
+        uses: actions/cache@v2
         with:
           path: ~/Library/Android/sdk
           key: ${{ runner.os }}-java-cache-${{ hashFiles('build.gradle') }}
-          restore-keys: |
-            ${{ runner.os }}-java-cache-
       - name: Install Java (if not cached)
-        if: steps.cache.outputs.cache-hit != 'true'
-        uses: actions/setup-java@v3
-        with:
-          java-version: "17"
-      - run: echo "Cache hit: ${{ steps.cache.outputs.cache-hit }}"
+        if: steps.cache_java.outputs.cache-hit != 'true'
+        run: |
+          # Install Java if cache was not found
+          # Use your Java installation commands here
 
   test:
     runs-on: ubuntu-latest
