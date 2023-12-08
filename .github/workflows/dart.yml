@@ -10,7 +10,7 @@ jobs:
   cache_and_install:
     runs-on: ubuntu-latest
     env:
-      PATH: ${{ github.workspace }}/flutter/bin:$PATH
+      PATH: ${{ runner.toolsDirectory }}/flutter/bin:$PATH
     steps:
       - uses: actions/checkout@v3
 
@@ -20,12 +20,14 @@ jobs:
         with:
           path: ~/.pub-cache
           key: ${{ runner.os }}-flutter-cache-${{ hashFiles('.flutter-version') }}
-              
-      - name: Install Flutter
-        if: steps.cache_flutter.outputs.cache-hit != 'true'
+
+      - name: Setup Flutter
         run: |
-          sudo snap install flutter --classic
-          flutter doctor -v  # Verify Flutter installation
+          mkdir -p $HOME/bin
+          curl -fsSL https://raw.githubusercontent.com/USERNAME/REPOSITORY/BRANCH/setup.sh -o $HOME/bin/setup_flutter.sh
+          chmod +x $HOME/bin/setup_flutter.sh
+          $HOME/bin/setup_flutter.sh -n latest
+          echo "::add-path::$HOME/.flutter-sdk/bin" # Add Flutter to PATH
 
       - name: Cache Java
         id: cache_java
