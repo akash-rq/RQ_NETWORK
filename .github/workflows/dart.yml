@@ -16,12 +16,16 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: "3.13.2"
+      # Add cache step with restore keys and a refresh command
       - uses: actions/cache@v3
         with:
           path: ~/.pub-cache
           key: ${{ runner.os }}-pub-cache-${{ hashFiles('pubspec.yaml') }}
           restore-keys: |
             ${{ runner.os }}-pub-cache-
+          # Refresh the cache if not found
+          refresh-command: |
+            rm -rf ~/.pub-cache && flutter pub get
       - run: flutter pub get
       - run: flutter analyze .
 
@@ -34,12 +38,15 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: "16"
+      # Use the same cache step with restore keys and refresh command
       - uses: actions/cache@v3
         with:
           path: ~/.pub-cache
           key: ${{ runner.os }}-pub-cache-${{ hashFiles('pubspec.yaml') }}
           restore-keys: |
             ${{ runner.os }}-pub-cache-
+          refresh-command: |
+            rm -rf ~/.pub-cache && flutter pub get
       - run: flutter pub get
       - run: npm version patch # Increment patch version
       - run: git add pubspec.yaml && git commit -m "Bump version to [version]"
@@ -53,12 +60,15 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: "16"
+      # Use the same cache step with restore keys and refresh command
       - uses: actions/cache@v3
         with:
           path: ~/.pub-cache
           key: ${{ runner.os }}-pub-cache-${{ hashFiles('pubspec.yaml') }}
           restore-keys: |
             ${{ runner.os }}-pub-cache-
+          refresh-command: |
+            rm -rf ~/.pub-cache && flutter pub get
       - run: flutter pub get
       - run: dart run build_runner build
       - uses: svenstaro/upload-release-action@v2
