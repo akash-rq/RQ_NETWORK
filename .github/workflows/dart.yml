@@ -24,10 +24,6 @@ jobs:
         with:
           flutter-version: "3.12.2" # Set the Flutter version you want to use
 
-      - name: Get Previous Tag
-        id: get_previous_tag
-        run: echo ::set-output name=PREV_TAG::$(git describe --abbrev=0 --tags)
-
       - name: Get Current Version
         id: get_current_version
         run: echo ::set-output name=CURR_VERSION::$(flutter --version | grep -o "Flutter [0-9.]*" | cut -d " " -f 2)
@@ -37,7 +33,7 @@ jobs:
         run: echo ::set-output name=NEW_VERSION::$(bash -c "echo \${${{ steps.get_current_version.outputs.CURR_VERSION }}%.*}.$((${{ steps.get_current_version.outputs.CURR_VERSION }} | awk -F '.' '{print $NF}') + 1)")
 
       - name: Update pubspec.yaml
-        run: sed -i "s/version: ${GITHUB_REF#refs/tags\//}/version: ${{ steps.increment_version.outputs.NEW_VERSION }}/" pubspec.yaml
+        run: sed -i "s/version:.*$/version: ${{ steps.increment_version.outputs.NEW_VERSION }}/" pubspec.yaml
 
       - name: Analyze Package
         run: flutter analyze
