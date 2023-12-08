@@ -13,19 +13,20 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - uses: subosito/flutter-action@v2
-        with:
-          flutter-version: "3.13.2"
-      # Add cache step with restore keys and a refresh command
+      # Use cache with restore keys and custom refresh command
       - uses: actions/cache@v3
         with:
           path: ~/.pub-cache
           key: ${{ runner.os }}-pub-cache-${{ hashFiles('pubspec.yaml') }}
           restore-keys: |
             ${{ runner.os }}-pub-cache-
-          # Refresh the cache if not found
+          # Clear cache after 3 jobs
           refresh-command: |
-            rm -rf ~/.pub-cache && flutter pub get
+            if [[ $(jobs -r | wc -l) -eq 3 ]]; then rm -rf ~/.pub-cache; fi
+            flutter pub get
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "3.13.2"
       - run: flutter pub get
       - run: flutter analyze .
 
@@ -38,7 +39,7 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: "16"
-      # Use the same cache step with restore keys and refresh command
+      # Use the same cache with restore keys and refresh command
       - uses: actions/cache@v3
         with:
           path: ~/.pub-cache
@@ -46,7 +47,8 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pub-cache-
           refresh-command: |
-            rm -rf ~/.pub-cache && flutter pub get
+            if [[ $(jobs -r | wc -l) -eq 3 ]]; then rm -rf ~/.pub-cache; fi
+            flutter pub get
       - run: flutter pub get
       - run: npm version patch # Increment patch version
       - run: git add pubspec.yaml && git commit -m "Bump version to [version]"
@@ -60,7 +62,7 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: "16"
-      # Use the same cache step with restore keys and refresh command
+      # Use the same cache with restore keys and refresh command
       - uses: actions/cache@v3
         with:
           path: ~/.pub-cache
@@ -68,13 +70,14 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pub-cache-
           refresh-command: |
-            rm -rf ~/.pub-cache && flutter pub get
+            if [[ $(jobs -r | wc -l) -eq 3 ]]; then rm -rf ~/.pub-cache; fi
+            flutter pub get
       - run: flutter pub get
       - run: dart run build_runner build
       - uses: svenstaro/upload-release-action@v2
         with:
-          repo_token: ${{ secrets.GITHUBTOKEN }}
-          file: build/outputs/package/my_package-0.0.1.tar.gz
+          repo_token: ${{ secrets.GITHUBTOKEN}}
+          file: build/outputs/package/rq_network-0.0.1.tar.gz
           tag: v[version]
           prerelease: false
           overwrite: true
