@@ -38,7 +38,7 @@ jobs:
         uses: actions/setup-java@v3
         with:
           java-version: "17"
-      - run: echo "Cache hit: ${{ steps.cache.outputs.cache-hit }}"
+
 
   test:
     runs-on: ubuntu-latest
