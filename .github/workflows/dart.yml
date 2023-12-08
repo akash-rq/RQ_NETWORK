@@ -5,11 +5,12 @@ on:
   push:
     branches:
       - dev
+
 jobs:
   cache_and_install:
     runs-on: ubuntu-latest
     env:
-      PATH: ${{runner.toolsDirectory }}/flutter/bin:$PATH
+      PATH: ${{ github.workspace }}/flutter/bin:$PATH
     steps:
       - uses: actions/checkout@v3
 
