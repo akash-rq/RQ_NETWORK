@@ -2,57 +2,26 @@ name: package_test
 
 on:
   workflow_dispatch:
+
   push:
     branches:
       - dev
 
 jobs:
-  # Cache Flutter SDK and analyze
-  cache_flutter_and_analyze:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v2
-
-      - name: Cache Flutter SDK
-        id: cache_flutter
-        uses: actions/cache@v2
-        with:
-          path: ${{ runner.tool_cache }}/flutter
-          key: ${{ runner.os }}-flutter-${{ hashFiles('**/pubspec.yaml') }}
-
-      - name: Set up Flutter
-        if: steps.cache_flutter.outputs.cache-hit != 'true'
-        run: |
-          mkdir -p ${{ runner.tool_cache }}
-          curl -sS https://storage.googleapis.com/flutter_infra/releases/stable/linux/flutter_linux_2.8.1-stable.tar.xz | tar xJ -C ${{ runner.tool_cache }}
-
-      - name: Test Package
-        run: |
-          export PATH="${{ runner.tool_cache }}/flutter/bin:${PATH}"
-          flutter --version
-          flutter pub get
-          flutter analyze .
-
-  # Subsequent job to check and analyze using Flutter
+  # Test Package
   test:
     runs-on: ubuntu-latest
-    needs: cache_flutter_and_analyze
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v2
-
-      - name: Set up Flutter
-        run: |
-          if [ ! -d "${{ runner.tool_cache }}/flutter" ]; then
-            echo "Flutter not found in cache, installing..."
-            mkdir -p ${{ runner.tool_cache }}
-            curl -sS https://storage.googleapis.com/flutter_infra/releases/stable/linux/flutter_linux_2.8.1-stable.tar.xz | tar xJ -C ${{ runner.tool_cache }}
-          fi
-          export PATH="${{ runner.tool_cache }}/flutter/bin:${PATH}"
-
-      - name: Test Package
-        run: |
-          flutter --version
-          flutter pub get
-          flutter analyze .
+      - uses: actions/checkout@v2
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "3.13.2"
+      - run: flutter pub get
+      - run: flutter analyze .
+      - uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ ecrets.GITHUB_TOKEN }}
+          file: build/outputs/package/rq_network-0.0.1.tar.gz
+          tag: v[version]
+          prerelease: false
+          overwrite: true
