@@ -1,4 +1,4 @@
-name: Version, Analyze, and Publish
+name: package_test
 
 on:
   workflow_dispatch:
@@ -7,7 +7,8 @@ on:
       - dev
 
 jobs:
-  bump_version_analyze_publish:
+  # Cache Flutter dependencies
+  cache_flutter:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
@@ -22,22 +23,29 @@ jobs:
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: "3.12.2" # Set the Flutter version you want to use
+          flutter-version: "3.13.2"
 
-      - name: Get Current Version
-        id: get_current_version
-        run: echo ::set-output name=CURR_VERSION::$(flutter --version | grep -o "Flutter [0-9.]*" | cut -d " " -f 2)
+      - name: Test Package
+        run: flutter pub get && flutter analyze .
 
-      - name: Increment Version
-        id: increment_version
-        run: echo ::set-output name=NEW_VERSION::$(bash -c "echo \${${{ steps.get_current_version.outputs.CURR_VERSION }}%.*}.$((${{ steps.get_current_version.outputs.CURR_VERSION }} | awk -F '.' '{print $NF}') + 1)")
+  # Subsequent job using cached dependencies
+  test:
+    needs: cache_flutter
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2
 
-      - name: Update pubspec.yaml
-        run: sed -i "s/version:.*$/version: ${{ steps.increment_version.outputs.NEW_VERSION }}/" pubspec.yaml
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "3.13.2"
 
-      - name: Analyze Package
-        run: flutter analyze
+      - name: Use Cached Flutter Dependencies
+        uses: actions/cache@v2
+        with:
+          path: ~/.pub-cache
+          key: ${{ runner.os }}-flutter-${{ hashFiles('**/pubspec.yaml') }}
 
-      - name: Publish Package
-        run: |
-          flutter pub publish
+      - name: Test Package
+        run: flutter pub get && flutter analyze .
