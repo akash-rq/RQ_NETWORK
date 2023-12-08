@@ -22,10 +22,10 @@ jobs:
       - name: Install Flutter
         if: steps.cache_flutter.outputs.cache-hit != 'true'
         run: |
-          git clone https://github.com/flutter/flutter.git -b stable
-          export PATH="$PATH:`pwd`/flutter/bin"
+          sudo snap install flutter --classic
           flutter precache
-          flutter doctor -v  # Verify Flutter installation
+          export PATH="$PATH:/snap/bin"
+          flutter doctor -v
 
       - name: Cache Java
         id: cache_java
