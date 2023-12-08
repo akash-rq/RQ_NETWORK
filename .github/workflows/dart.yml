@@ -16,26 +16,57 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: "3.13.2"
+      - uses: actions/cache@v3
+        with:
+          path: ~/.pub-cache
+          key: ${{ runner.os }}-pub-cache-${{ hashFiles('pubspec.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pub-cache-
       - run: flutter pub get
       - run: flutter analyze .
   # Bump Version
+  bump_version:
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with:
           node-version: "16"
+      - uses: actions/cache@v3
+        with:
+          path: ~/.pub-cache
+          key: ${{ runner.os }}-pub-cache-${{ hashFiles('pubspec.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pub-cache-
       - run: flutter pub get
       - run: npm version patch # Increment patch version
       - run: git add pubspec.yaml && git commit -m "Bump version to [version]"
+  # Publish Package
+  publish_package:
+    runs-on: ubuntu-latest
+    needs: bump_version
+    steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with:
           node-version: "16"
+      - uses: actions/cache@v3
+        with:
+          path: ~/.pub-cache
+          key: ${{ runner.os }}-pub-cache-${{ hashFiles('pubspec.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pub-cache-
       - run: flutter pub get
       - run: dart run build_runner build
+      - name: Update file name
+        run: |
+          mv build/outputs/package/my_package-0.0.1.tar.gz "build/outputs/package/rq_network-${npm_version}.tar.gz"
+          # Replace "npm_version" with the actual version obtained from npm
       - uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUBTOKEN }}
-          file: build/outputs/package/my_package-0.0.1.tar.gz
+          file: "build/outputs/package/rq_network-${npm_version}.tar.gz"
           tag: v[version]
           prerelease: false
           overwrite: true
