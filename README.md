@@ -1,39 +1,31 @@
-<!--
-This README describes the package. If you publish this package to pub.dev,
-this README's contents appear on the landing page for your package.
+## rq_network_flutter: Flutter Network API Layer
 
-For information about how to write a good package README, see the guide for
-[writing package pages](https://dart.dev/guides/libraries/writing-package-pages).
+**A simple and easy-to-use network API layer for Flutter applications.**
 
-For general information about developing packages, see the Dart guide for
-[creating packages](https://dart.dev/guides/libraries/create-library-packages)
-and the Flutter guide for
-[developing packages and plugins](https://flutter.dev/developing-packages).
--->
+This package, **rq_network_flutter**, provides a clean and concise API for making network requests and handling responses in your Flutter projects. With minimal code, you can easily send requests, parse responses, and handle errors.
 
-TODO: Put a short description of the package here that helps potential users
-know whether this package might be useful for them.
+**Note:** This package is still under development, and its features and documentation are continuously evolving.
 
-## Features
 
-TODO: List what your package can do. Maybe include images, gifs, or videos.
+### Features
 
-## Getting started
 
-TODO: List prerequisites and provide or point to information on how to
-start using the package.
+* **Simple API:** Make `GET`, `POST`, `PUT`, and `DELETE` requests with a single line of code.
+* **Automatic JSON serialization:** Automatically convert objects to and from JSON.
+* **Error handling:** Gracefully handle network and response errors.
+* **Interceptors:** Intercept requests and responses for custom behavior.
+* **Cancellable requests:** Stop ongoing network requests.
+* **Built-in progress tracking:** Monitor the progress of network requests.
+* **Offline support:** (Coming soon) Cache responses for offline use.
 
-## Usage
 
-TODO: Include short and useful examples for package users. Add longer examples
-to `/example` folder.
+### Getting Started
 
-```dart
-const like = 'sample';
-```
 
-## Additional information
+**1. Add the package:**
 
-TODO: Tell users more about the package: where to find more information, how to
-contribute to the package, how to file issues, what response they can expect
-from the package authors, and more.
+Open your `pubspec.yaml` file and add the following line under the `dependencies` section:
+
+```yaml
+dependencies:
+  rq_network_flutter: ^latest
