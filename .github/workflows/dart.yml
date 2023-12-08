@@ -27,9 +27,6 @@ jobs:
       - name: Install project dependencies
         run:  flutter pub get
 
-      - name: Run code generation
-        run:  flutter pub run build_runner build --delete-conflicting-outputs
-
       - name: Run static analysis
         run:  flutter analyze .
 
