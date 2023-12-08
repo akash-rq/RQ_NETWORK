@@ -24,36 +24,38 @@ jobs:
             ${{ runner.os }}-pub-cache-
       - run: flutter pub get
       - run: flutter analyze .
+
   # Bump Version
   bump_version:
-  runs-on: ubuntu-latest
-  needs: test
-  steps:
-    - uses: actions/checkout@v3
-    - uses: actions/setup-node@v3
-      with:
-        node-version: "16"
-    - uses: actions/cache@v3
-      with:
-        path: ~/.pub-cache
-        key: ${{ runner.os }}-pub-cache-${{ hashFiles('pubspec.yaml') }}
-        restore-keys: |
-          ${{ runner.os }}-pub-cache-
-    - run: flutter pub get
-    - name: Get current version
-      run: |
-        current_version=$(cat pubspec.yaml | grep version | sed 's/version: //')
-        echo "Current version: $current_version"
-    - name: Increment version
-      run: |
-        new_version=$(echo "$current_version" | awk -F. '{printf "%d.%d.%d\n", $1,$2,$3+1}')
-        echo "New version: $new_version"
-    - name: Update pubspec.yaml
-      run: |
-        sed -i "s/version: $current_version/version: $new_version/" pubspec.yaml
-    - run: git add pubspec.yaml && git commit -m "Bump version to $new_version"
-    - name: Create tag (optional)
-      run: git tag "v$new_version"
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: "16"
+      - uses: actions/cache@v3
+        with:
+          path: ~/.pub-cache
+          key: ${{ runner.os }}-pub-cache-${{ hashFiles('pubspec.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pub-cache-
+      - run: flutter pub get
+      - name: Get current version
+        run: |
+          current_version=$(cat pubspec.yaml | grep version | sed 's/version: //')
+          echo "Current version: $current_version"
+      - name: Increment version
+        run: |
+          new_version=$(echo "$current_version" | awk -F. '{printf "%d.%d.%d\n", $1,$2,$3+1}')
+          echo "New version: $new_version"
+      - name: Update pubspec.yaml
+        run: |
+          sed -i "s/version: $current_version/version: $new_version/" pubspec.yaml
+      - run: git add pubspec.yaml && git commit -m "Bump version to $new_version"
+      - name: Create tag (optional)
+        run: git tag "v$new_version"
+
   # Publish Package
   publish_package:
     runs-on: ubuntu-latest
