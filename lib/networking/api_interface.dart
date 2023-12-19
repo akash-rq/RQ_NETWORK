@@ -23,6 +23,16 @@ abstract class ApiInterface {
     required T Function(JSON responseBody) converter,
   });
 
+  Future<T> getData<T>({
+    required String endpoint,
+    required JSON data,
+    CancelToken? cancelToken,
+    bool requiresAuthToken = true,
+    required T Function(ResponseModel<JSON> response) converter,
+    JSON? queryParams,
+    int? cacheAgeDays,
+  });
+
   Future<T> setData<T>({
     required String endpoint,
     required JSON data,

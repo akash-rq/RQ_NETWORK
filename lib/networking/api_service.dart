@@ -95,6 +95,40 @@ class ApiService implements ApiInterface {
     }
   }
 
+    @override
+  Future<T> getData<T>({
+    required String endpoint,
+    required JSON data,
+    CancelToken? cancelToken,
+    bool requiresAuthToken = true,
+    required T Function(ResponseModel<JSON> response) converter,
+    JSON? queryParams,
+    CachePolicy? cachePolicy,
+    int? cacheAgeDays,
+  }) async {
+    ResponseModel<JSON> response;
+
+    try {
+      response = await _dioService.get<JSON>(
+        endpoint: endpoint,
+        options: Options(
+          extra: <String, Object?>{
+            'requiresAuthToken': requiresAuthToken,
+          },
+        ),
+        cancelToken: cancelToken,
+      );
+    } on Exception catch (ex) {
+      throw CustomException.fromDioException(ex);
+    }
+
+    try {
+      return converter(response);
+    } on Exception catch (ex) {
+      throw CustomException.fromParsingException(ex);
+    }
+  }
+
   @override
   Future<T> setData<T>({
     required String endpoint,
