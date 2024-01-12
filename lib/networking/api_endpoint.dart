@@ -7,4 +7,5 @@ class ApiEndpoint {
   const ApiEndpoint._();
   static const String baseUrl = Config.baseUrl;
   static const String refreshTokenUrl = Config.baseUrl + Config.refreshTokenUrl;
+  static const Map<String, dynamic> refreshTokenReqBody = {};
 }

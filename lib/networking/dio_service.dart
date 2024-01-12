@@ -5,7 +5,6 @@ import '../helpers/typedefs.dart';
 import 'response_model.dart';
 
 class DioService {
-
   DioService({
     required Dio dioClient,
     this.globalCacheOptions,
@@ -68,13 +67,13 @@ class DioService {
     return ResponseModel<R>.fromJson(response.data!);
   }
 
-  Future<ResponseModel<R>> patch<R>({
+  Future<ResponseModel<R>> put<R>({
     required String endpoint,
     JSON? data,
     Options? options,
     CancelToken? cancelToken,
   }) async {
-    final Response<JSON> response = await _dio.patch<JSON>(
+    final Response<JSON> response = await _dio.put<JSON>(
       endpoint,
       data: data,
       options: options,

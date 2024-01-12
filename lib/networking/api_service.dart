@@ -8,7 +8,6 @@ import '../../helpers/typedefs.dart';
 import 'response_model.dart';
 
 class ApiService implements ApiInterface {
-
   ApiService(DioService dioService) : _dioService = dioService;
   late final DioService _dioService;
 
@@ -25,7 +24,8 @@ class ApiService implements ApiInterface {
     List<Object?> body;
 
     try {
-      final ResponseModel<List<Object?>> data = await _dioService.get<List<Object?>>(
+      final ResponseModel<List<Object?>> data =
+          await _dioService.get<List<Object?>>(
         endpoint: endpoint,
         cacheOptions: _dioService.globalCacheOptions?.copyWith(
           policy: cachePolicy,
@@ -48,7 +48,9 @@ class ApiService implements ApiInterface {
     }
 
     try {
-      return body.map((Object? dataMap) => converter(dataMap! as JSON)).toList();
+      return body
+          .map((Object? dataMap) => converter(dataMap! as JSON))
+          .toList();
     } on Exception catch (ex) {
       throw CustomException.fromParsingException(ex);
     }
@@ -95,7 +97,7 @@ class ApiService implements ApiInterface {
     }
   }
 
-    @override
+  @override
   Future<T> getData<T>({
     required String endpoint,
     required JSON data,
@@ -172,7 +174,7 @@ class ApiService implements ApiInterface {
     ResponseModel<JSON> response;
 
     try {
-      response = await _dioService.patch<JSON>(
+      response = await _dioService.put<JSON>(
         endpoint: endpoint,
         data: data,
         options: Options(

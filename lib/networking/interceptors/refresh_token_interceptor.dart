@@ -31,22 +31,22 @@ class RefreshTokenInterceptor extends QueuedInterceptor {
 
           if (err.requestOptions.headers.containsKey('Authorization') == true) {
             if (err.response?.statusCode == 401) {
-              final Map<String, dynamic> refreshTokenBody = <String, dynamic>{
-                'customer': <String, String>{
-                  'grant_type': 'refresh_token',
-                  'refresh_token': (token?['refreshToken'] as String?) ?? '',
-                }
-              };
+              // final Map<String, dynamic> refreshTokenBody = <String, dynamic>{
+              //   'customer': <String, String>{
+              //     'grant_type': 'refresh_token',
+              //     'refresh_token': (token?['refreshToken'] as String?) ?? '',
+              //   }
+              // };
 
               final newToken = await _refreshTokenRequest(
                 dioError: err,
                 handler: handler,
                 tokenDio: tokenDio,
-                data: refreshTokenBody,
+                // data: refreshTokenBody,
               );
 
               if (newToken != null && newToken.isNotEmpty) {
-                newAccessToken = json.decode(newToken)  as JSON;
+                newAccessToken = json.decode(newToken) as JSON;
 
                 final response = await _dio.request<JSON>(
                   err.requestOptions.path,
@@ -78,15 +78,15 @@ class RefreshTokenInterceptor extends QueuedInterceptor {
     required DioException dioError,
     required ErrorInterceptorHandler handler,
     required Dio tokenDio,
-    required JSON data,
+    // required JSON data,
   }) async {
     debugPrint('--> REFRESHING TOKEN');
     try {
-      debugPrint('\tBody: $data');
+      debugPrint('\tBody: ${ApiEndpoint.refreshTokenReqBody}');
 
       final Response<JSON> response = await tokenDio.post<JSON>(
         ApiEndpoint.refreshTokenUrl,
-        data: data,
+        data: ApiEndpoint.refreshTokenReqBody,
       );
 
       debugPrint('\tStatus code:${response.statusCode}');
