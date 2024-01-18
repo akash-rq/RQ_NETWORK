@@ -2,7 +2,6 @@
 import '../../helpers/typedefs.dart';
 
 class ResponseModel<T> {
-
   const ResponseModel({
     required this.headers,
     required this.body,
@@ -11,9 +10,9 @@ class ResponseModel<T> {
   factory ResponseModel.fromJson(JSON json) {
     return ResponseModel(
       headers: ResponseHeadersModel.fromJson(
-        json['headers'] as JSON,
+        json?['headers'] as JSON,
       ),
-      body: json['body'] as T,
+      body: json?['body'] as T,
     );
   }
   final ResponseHeadersModel headers;
@@ -21,7 +20,6 @@ class ResponseModel<T> {
 }
 
 class ResponseHeadersModel {
-
   const ResponseHeadersModel({
     required this.error,
     required this.message,
@@ -30,9 +28,9 @@ class ResponseHeadersModel {
 
   factory ResponseHeadersModel.fromJson(JSON json) {
     return ResponseHeadersModel(
-      error: boolFromInt(json['error'] as int),
-      message: json['message'] as String,
-      code: json['code'] as String?,
+      error: boolFromInt(json?['error'] as int),
+      message: json?['message'] as String,
+      code: json?['code'] as String?,
     );
   }
   final bool error;

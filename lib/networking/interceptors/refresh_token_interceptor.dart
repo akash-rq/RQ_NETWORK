@@ -31,18 +31,10 @@ class RefreshTokenInterceptor extends QueuedInterceptor {
 
           if (err.requestOptions.headers.containsKey('Authorization') == true) {
             if (err.response?.statusCode == 401) {
-              // final Map<String, dynamic> refreshTokenBody = <String, dynamic>{
-              //   'customer': <String, String>{
-              //     'grant_type': 'refresh_token',
-              //     'refresh_token': (token?['refreshToken'] as String?) ?? '',
-              //   }
-              // };
-
               final newToken = await _refreshTokenRequest(
                 dioError: err,
                 handler: handler,
                 tokenDio: tokenDio,
-                // data: refreshTokenBody,
               );
 
               if (newToken != null && newToken.isNotEmpty) {
@@ -54,7 +46,8 @@ class RefreshTokenInterceptor extends QueuedInterceptor {
                   cancelToken: err.requestOptions.cancelToken,
                   options: Options(
                     headers: <String, Object?>{
-                      'Authorization': 'Bearer ${newAccessToken["accessToken"]}'
+                      'Authorization':
+                          'Bearer ${newAccessToken?["accessToken"]}'
                     },
                   ),
                 );

@@ -49,7 +49,7 @@ class DioService {
       ),
       cancelToken: cancelToken ?? _cancelToken,
     );
-    return ResponseModel<R>.fromJson(response.data!);
+    return ResponseModel<R>.fromJson(response.data);
   }
 
   Future<ResponseModel<R>> post<R>({
@@ -64,7 +64,7 @@ class DioService {
       options: options,
       cancelToken: cancelToken ?? _cancelToken,
     );
-    return ResponseModel<R>.fromJson(response.data!);
+    return ResponseModel<R>.fromJson(response.data);
   }
 
   Future<ResponseModel<R>> put<R>({
@@ -79,7 +79,7 @@ class DioService {
       options: options,
       cancelToken: cancelToken ?? _cancelToken,
     );
-    return ResponseModel<R>.fromJson(response.data!);
+    return ResponseModel<R>.fromJson(response.data);
   }
 
   Future<ResponseModel<R>> delete<R>({
@@ -94,7 +94,7 @@ class DioService {
       options: options,
       cancelToken: cancelToken ?? _cancelToken,
     );
-    return ResponseModel<R>.fromJson(response.data!);
+    return ResponseModel<R>.fromJson(response.data);
   }
 
   Options? _mergeDioAndCacheOptions({

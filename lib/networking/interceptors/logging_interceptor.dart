@@ -71,12 +71,12 @@ class LoggingInterceptor extends Interceptor {
       debugPrint('\tStatus code: ${err.response!.statusCode}');
       if (err.response!.data != null) {
         final JSON headers = (err.response?.data as JSON?)?['headers'] as JSON;
-        final String message = headers['message'] as String;
-        final String code = headers['code'] as String;
+        final String message = headers?['message'] as String;
+        final String code = headers?['code'] as String;
         debugPrint('\tException: $code');
         debugPrint('\tMessage: $message');
-        if (headers.containsKey('data')) {
-          final List<Object?> data = headers['data'] as List<Object?>;
+        if (headers?.containsKey('data') ?? false) {
+          final List<Object?> data = headers?['data'] as List<Object?>;
           if (data.isNotEmpty) {
             debugPrint('\tData: $data');
           }
